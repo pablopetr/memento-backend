@@ -11,3 +11,37 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  password  String     // bcrypt hash, never store plaintext
+  name      String?
+  reminders Reminder[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("users")
+}
+
+enum ReminderStatus {
+  PENDING
+  TRIGGERED
+  CANCELLED
+}
+
+model Reminder {
+  id          String         @id @default(uuid())
+  title       String
+  description String?
+  scheduledAt DateTime
+  status      ReminderStatus @default(PENDING)
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([userId])
+  @@index([scheduledAt, status])
+  @@map("reminders")
+}
