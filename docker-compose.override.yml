@@ -1,0 +1,10 @@
+services:
+  backend:
+    build:
+      target: builder
+    volumes:
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+    command: sh -c "npx prisma migrate deploy && npm run start:dev"
+    environment:
+      - ENABLE_SWAGGER=true
