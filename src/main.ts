@@ -4,11 +4,23 @@ import {
 } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Security headers (Helmet)
+  app.use(helmet());
+
+  // CORS configuration for frontend connection
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN || ['http://localhost:3001', 'http://localhost:8081'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
 
   // Global exception filter (catches all errors in one place)
   app.useGlobalFilters(new AllExceptionsFilter());
@@ -30,8 +42,10 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger/OpenAPI documentation (can be disabled via ENABLE_SWAGGER env)
-  if (process.env.ENABLE_SWAGGER === 'true' || !process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+  // Swagger/OpenAPI documentation (only in dev or when explicitly enabled)
+  const isProduction = process.env.NODE_ENV === 'production';
+  const enableSwagger = process.env.ENABLE_SWAGGER === 'true';
+  if (!isProduction && enableSwagger) {
     const config = new DocumentBuilder()
       .setTitle('Reminder App API')
       .setDescription('REST API for the Reminder mobile app backend')

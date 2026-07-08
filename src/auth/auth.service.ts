@@ -16,7 +16,9 @@ export class AuthService {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    return user;
+    // Don't expose password hash
+    const { password: _, ...userWithoutPassword } = user;
+    return userWithoutPassword as User;
   }
 
   async login(user: User): Promise<{ accessToken: string }> {

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
@@ -17,6 +18,12 @@ import { AppService } from './app.service';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 1 minute
+        limit: 100, // 100 requests per minute globally
+      },
+    ]),
     ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,
@@ -28,6 +35,11 @@ import { AppService } from './app.service';
   controllers: [AppController],
   providers: [
     AppService,
+    // Global rate limiting guard
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     // Global JWT guard — every route is protected unless marked @Public().
     {
       provide: APP_GUARD,
