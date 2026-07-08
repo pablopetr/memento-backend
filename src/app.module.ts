@@ -5,6 +5,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { RemindersModule } from './reminders/reminders.module';
+import { UsersModule } from './users/users.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { SchedulingModule } from './scheduling/scheduling.module';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
@@ -20,6 +21,7 @@ import { AppService } from './app.service';
     PrismaModule,
     AuthModule,
     RemindersModule,
+    UsersModule,
     NotificationsModule,
     SchedulingModule,
   ],
